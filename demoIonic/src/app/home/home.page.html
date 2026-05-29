@@ -1,29 +1,24 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Apps Moviles
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Apps Moviles</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-<ion-card>
-  <ion-card-header>
-    <ion-card-title>Desarollo</ion-card-title>
-    <ion-card-subtitle>Subtitulo</ion-card-subtitle>
-  </ion-card-header>
+  <ion-item>
+      <ion-label position="stacked">Nueva tarea</ion-label>
+      <ion-input [(ngModel)]="newTaskStr" placeholder="Ejem: Estudiar Typescript"></ion-input>
+  </ion-item>
 
-  <ion-card-content>
-    Este es el contenido.
-  </ion-card-content>
+  <ion-button expand="block" color="secondary" (click)="addTask()">Agregar tarea</ion-button>
 
-<ion-button click="saludar()">Default</ion-button>
+  <ion-list>
+    @for( task of tasks; track task.id){
+    <ion-item>
+      <label>{{ task.titulo }}</label>
+    </ion-item>
+    }
 
-</ion-card>
+  </ion-list>
 </ion-content>

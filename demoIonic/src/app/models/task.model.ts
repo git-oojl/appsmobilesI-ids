@@ -3,6 +3,6 @@ export interface Task{
   titulo: string;
   descripcion: string;
   finalizado: boolean;
-  prioridad: 'Baja' | 'Media' | 'Alta'
+  prioridad?: 'Baja' | 'Media' | 'Alta'
 }
 

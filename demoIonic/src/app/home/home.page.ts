@@ -1,14 +1,17 @@
 import { Task } from './../models/task.model';
 import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonItem, IonLabel, IonInput, IonList } from '@ionic/angular/standalone';
+import {FormsModule} from '@angular/forms'
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton],
+  imports: [IonLabel, IonItem, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonInput, FormsModule, IonList],
 })
 export class HomePage {
+
+  newTaskStr: string = '';
 
   // Arreglo de tareas
   tasks: Task[] = [{
@@ -28,6 +31,20 @@ export class HomePage {
 ];
 
   constructor() {
+    console.log(this.tasks);
+  }
+
+  addTask(){
+    console.log(this.newTaskStr)
+    const newTask: Task = {
+      id: Date.now(),
+      titulo: this.newTaskStr,
+      descripcion: '',
+      finalizado: false,
+      prioridad: 'Media'
+    };
+    this.tasks.push(newTask);
+    this.newTaskStr = '' // Limpia de input
     console.log(this.tasks);
   }
 
