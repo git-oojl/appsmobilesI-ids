@@ -35,16 +35,31 @@ export class HomePage {
   }
 
   addTask(){
-    console.log(this.newTaskStr)
+    const titulo = this.newTaskStr.trim();
+
+    if (!titulo) {
+      alert('El título no puede estar vacío');
+      return;
+    }
+
+    const existe = this.tasks.some(task =>
+      task.titulo.trim().toLowerCase() === titulo.toLowerCase()
+    );
+
+    if (existe) {
+      alert('La tarea ya existe');
+      return;
+    }
+
     const newTask: Task = {
       id: Date.now(),
-      titulo: this.newTaskStr,
+      titulo,
       descripcion: '',
       finalizado: false,
       prioridad: 'Media'
     };
     this.tasks.push(newTask);
-    this.newTaskStr = '' // Limpia de input
+    this.newTaskStr = ''; // Limpia el input
     console.log(this.tasks);
   }
 

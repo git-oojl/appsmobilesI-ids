@@ -68,3 +68,40 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Android / Capacitor
+/android/.gradle/
+/android/local.properties
+/android/**/build/
+/android/**/captures/
+/android/.cxx/
+/android/**/.cxx/
+/android/.externalNativeBuild/
+/android/**/.externalNativeBuild/
+
+# Android Studio / IntelliJ
+*.iml
+/android/.idea/
+/android/*.iml
+/android/**/out/
+
+# APK / AAB outputs
+*.apk
+*.aab
+*.ap_
+/android/app/build/outputs/
+/android/app/release/
+/android/app/debug/
+
+# Signing keys / secrets
+*.jks
+*.keystore
+/android/key.properties
+/android/*.jks
+/android/*.keystore
+/android/app/*.jks
+/android/app/*.keystore
+
+# Gradle
+.gradle/
+build/
