@@ -1,13 +1,16 @@
-import { Task } from './../models/task.model';
+import { Task } from './../../models/task.model';
 import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonItem, IonLabel, IonInput, IonList } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/angular/standalone';
 import {FormsModule} from '@angular/forms'
+import {addIcons} from 'ionicons'
+import {addOutline, addCircleOutline} from 'ionicons/icons'
+
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [IonLabel, IonItem, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonInput, FormsModule, IonList],
+  imports: [IonIcon, IonLabel, IonItem, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonInput, FormsModule, IonList],
 })
 export class HomePage {
 
@@ -31,6 +34,7 @@ export class HomePage {
 ];
 
   constructor() {
+    addIcons({addCircleOutline});
     console.log(this.tasks);
   }
 
