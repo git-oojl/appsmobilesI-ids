@@ -1,73 +1,164 @@
-import { Task } from './../../models/task.model';
-import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/angular/standalone';
-import {FormsModule} from '@angular/forms'
-import {addIcons} from 'ionicons'
-import {addOutline, addCircleOutline} from 'ionicons/icons'
-
+import { Component, inject } from '@angular/core';
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+  IonReorder,
+  IonReorderGroup,
+  IonTitle,
+  IonToolbar,
+  ReorderEndCustomEvent
+} from '@ionic/angular/standalone';
+import { FormsModule } from '@angular/forms';
+import { addIcons } from 'ionicons';
+import {
+  addOutline,
+  alertCircleOutline,
+  checkmarkCircleOutline,
+  ellipseOutline,
+  listOutline,
+  trashOutline
+} from 'ionicons/icons';
+import { Preferences } from '@capacitor/preferences';
+import { AlertService } from '../../alert.service';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [IonIcon, IonLabel, IonItem, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle, IonButton, IonInput, FormsModule, IonList],
+  imports: [
+    IonButton,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonInput,
+    IonItem,
+    IonItemOption,
+    IonItemOptions,
+    IonItemSliding,
+    IonLabel,
+    IonList,
+    IonReorder,
+    IonReorderGroup,
+    IonTitle,
+    IonToolbar,
+    FormsModule
+  ],
 })
 export class HomePage {
+  public task: string = '';
+  public tasks: Task[] = [];
+  private readonly KEY_TASK = 'local key task';
 
-  newTaskStr: string = '';
-
-  // Arreglo de tareas
-  tasks: Task[] = [{
-    id: 1,
-    titulo: 'Configuracion de Ionic',
-    descripcion: 'Instalar Node.js, Angular CLI y Ionic CLI',
-    finalizado: true,
-    prioridad: 'Alta',
-  },
-  {
-    id: 2,
-    titulo: 'Crear task list',
-    descripcion: 'Crear el proyecto inicial de task list',
-    finalizado: true,
-    prioridad: 'Alta',
-  }
-];
+  public alertService: AlertService = inject(AlertService);
 
   constructor() {
-    addIcons({addCircleOutline});
-    console.log(this.tasks);
+    addIcons({
+      addOutline,
+      alertCircleOutline,
+      checkmarkCircleOutline,
+      ellipseOutline,
+      listOutline,
+      trashOutline
+    });
   }
 
-  addTask(){
-    const titulo = this.newTaskStr.trim();
+  async ionViewWillEnter() {
+    const taskPreferences = await Preferences.get({ key: this.KEY_TASK });
 
-    if (!titulo) {
-      alert('El título no puede estar vacío');
+    if (taskPreferences.value) {
+      const tasks = JSON.parse(taskPreferences.value);
+      if (Array.isArray(tasks)) {
+        this.tasks = tasks.map((task, index) => this.getTaskFromLocal(task, index));
+        this.saveTaskOnLocal();
+      }
+    }
+  }
+
+  addTask() {
+    const title = this.cleanTask(this.task);
+
+    if (!title) {
+      this.alertService.showAlert('Aviso', 'Ingresa una tarea primero');
       return;
     }
 
-    const existe = this.tasks.some(task =>
-      task.titulo.trim().toLowerCase() === titulo.toLowerCase()
-    );
-
-    if (existe) {
-      alert('La tarea ya existe');
+    if (this.tasks.some(task => task.titulo.toLowerCase() === title.toLowerCase())) {
+      this.alertService.showAlert('Aviso', 'Esa tarea ya existe');
       return;
     }
 
-    const newTask: Task = {
+    this.tasks.push({
       id: Date.now(),
-      titulo,
+      titulo: title,
       descripcion: '',
-      finalizado: false,
-      prioridad: 'Media'
-    };
-    this.tasks.push(newTask);
-    this.newTaskStr = ''; // Limpia el input
+      finalizado: false
+    });
+
     console.log(this.tasks);
+    this.alertService.showAlert('Exito', 'Tarea agregada');
+    this.task = '';
+    this.saveTaskOnLocal();
   }
 
-  saludar(){
-    console.log("Saludo.")
+  toggleTask(taskUpdate: Task) {
+    taskUpdate.finalizado = !taskUpdate.finalizado;
+    this.saveTaskOnLocal();
+  }
+
+  confirmDelete(task: Task) {
+    console.log(`Confirmacion para borrar task: ${task.titulo}`);
+    this.alertService.confirmAlert(
+      'Aviso',
+      `Desea borrar la tarea ${task.titulo}?`,
+      () => this.deleteTask(task),
+      'NO',
+      'SI'
+    );
+  }
+
+  actualizarPosiciones(event: ReorderEndCustomEvent) {
+    console.log('El arreglo antes del cambio:', this.tasks);
+    this.tasks = event.detail.complete(this.tasks);
+    console.log('El arreglo despues del cambio:', this.tasks);
+    this.saveTaskOnLocal();
+  }
+
+  private deleteTask(taskRemove: Task) {
+    this.tasks = this.tasks.filter(task => task.id !== taskRemove.id);
+    this.saveTaskOnLocal();
+  }
+
+  private cleanTask(task: string) {
+    return task.trim().replace(/\s+/g, ' ');
+  }
+
+  private getTaskFromLocal(task: string | Task, index: number): Task {
+    if (typeof task === 'string') {
+      return {
+        id: Date.now() + index,
+        titulo: task,
+        descripcion: '',
+        finalizado: false
+      };
+    }
+
+    return task;
+  }
+
+  private saveTaskOnLocal() {
+    Preferences.set({
+      key: this.KEY_TASK,
+      value: JSON.stringify(this.tasks)
+    });
   }
 }

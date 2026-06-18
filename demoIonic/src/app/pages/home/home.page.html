@@ -1,22 +1,53 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>TaskList v2</ion-title>
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">
+      To Do List
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-
   <ion-item>
-      <ion-input
-        type="text"
-        placeholder="Ingresa una nueva tarea..."
-        name="task"
-        [(ngModel)]="newTaskStr"/>
+    <ion-input
+      type="text"
+      placeholder="Ingresa una tarea...."
+      name="task"
+      [(ngModel)]="task"
+      (keyup.enter)="addTask()"/>
+    <ion-button (click)="addTask()" [disabled]="!task.trim()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
 
-        <ion-button>
-          <ion-icon name="add-circle-outline"></ion-icon>
-        </ion-button>
-
+  @if (tasks.length > 0) {
+    <ion-list>
+      <ion-reorder-group [disabled]="false" (ionReorderEnd)="actualizarPosiciones($event)">
+        @for (task of tasks; track task.id) {
+          <ion-item-sliding>
+            <ion-item>
+              <ion-icon
+                slot="start"
+                [name]="task.finalizado ? 'checkmark-circle-outline' : 'ellipse-outline'"
+                [color]="task.finalizado ? 'success' : 'medium'"
+                (click)="toggleTask(task)"/>
+              <ion-label [class.task-done]="task.finalizado" (click)="toggleTask(task)">
+                {{task.titulo}}
+              </ion-label>
+              <ion-reorder/>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="confirmDelete(task)">
+                <ion-icon name="trash-outline" slot="icon-only"/>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-reorder-group>
+    </ion-list>
+  } @else {
+    <ion-item lines="none" class="ion-text-center empty-item">
+      <ion-icon name="list-outline" slot="start" color="medium"/>
+      No hay tareas pendientes
     </ion-item>
-
+  }
 </ion-content>
