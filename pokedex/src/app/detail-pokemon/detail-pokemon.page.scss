@@ -1,0 +1,20 @@
+.center {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+ion-img {
+  width: 160px;
+  margin: 0 auto;
+}
+
+.stat-row {
+  margin: 12px 0;
+}
+
+.stat-text {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}

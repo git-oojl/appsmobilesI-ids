@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">
+      Pokédex
+    </ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="search-toolbar">
+    <ion-searchbar
+      placeholder="Buscar por ID"
+      type="number"
+      inputmode="numeric"
+      [value]="searchId"
+      (ionInput)="onSearchChange($event)"
+      (keyup.enter)="searchById()"
+    />
+
+    <ion-buttons slot="end">
+      <ion-button (click)="searchById()">
+        Buscar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (loading) {
+    <div class="center">
+      <ion-spinner/>
+    </div>
+  } @else {
+    <ion-list>
+      @for (pokemon of pokemons; track pokemon.name) {
+        <ion-item button (click)="goToDetail(pokemon)" class="pokemon-item">
+          <ion-label>
+            <h2>{{ formatName(pokemon.name) }}</h2>
+            <p>#{{ pokemon.id }}</p>
+          </ion-label>
+
+          <ion-icon name="chevron-forward-outline" slot="end"/>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <div class="buttons">
+    <ion-button fill="outline" (click)="previousPage()" [disabled]="offset === 0">
+      Anterior
+    </ion-button>
+
+    <ion-button (click)="nextPage()">
+      Siguiente
+    </ion-button>
+  </div>
+</ion-content>
