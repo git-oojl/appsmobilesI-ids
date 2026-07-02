@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">
+      Pokedex
+    </ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="search-toolbar">
+    <ion-searchbar
+      placeholder="Buscar por ID"
+      type="number"
+      inputmode="numeric"
+      [value]="searchId"
+      (ionInput)="onSearchChange($event)"
+      (keyup.enter)="searchById()"
+    />
+
+    <ion-buttons slot="end">
+      <ion-button (click)="searchById()">
+        Buscar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid fixed>
+    <ion-row>
+      @for (pokemon of pokemons; track trackPokemon($index, pokemon)) {
+        <ion-col size="6" sizeMd="4" sizeLg="3">
+          <ion-card (click)="goToDetail(pokemon)" class="pokemon-card">
+            <ion-card-content>
+              <div class="card-media">
+                @if (hasSprite(pokemon)) {
+                  <ion-img [src]="pokemon.sprite" [alt]="pokemon.name"/>
+                } @else {
+                  <div class="sprite-fallback">
+                    #{{ pokemon.id }}
+                  </div>
+                }
+              </div>
+
+              <div class="card-body">
+                <p class="pokemon-number">#{{ pokemon.id }}</p>
+                <h2>{{ formatName(pokemon.name) }}</h2>
+
+                <div class="types">
+                  @for (type of getTypes(pokemon); track trackType($index, type)) {
+                    <ion-chip>{{ formatName(type) }}</ion-chip>
+                  }
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+
+  @if (pokemons.length === 0 && !loading) {
+    <div class="empty-state">
+      No hay pokemons cargados.
+    </div>
+  }
+
+  <div class="actions">
+    <ion-button (click)="getMorePokemons()" [disabled]="loading">
+      Cargar mas
+    </ion-button>
+  </div>
+</ion-content>

@@ -1,0 +1,77 @@
+.search-toolbar {
+  --min-height: 56px;
+}
+
+ion-searchbar {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.pokemon-card {
+  margin: 0;
+  height: 100%;
+}
+
+.pokemon-card ion-card-content {
+  display: grid;
+  gap: 12px;
+}
+
+.card-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+
+.card-media ion-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.sprite-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  background: var(--ion-color-light);
+  color: var(--ion-color-medium);
+  font-weight: 600;
+}
+
+.card-body h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.pokemon-number {
+  margin: 0 0 4px;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.types ion-chip {
+  margin: 0;
+}
+
+.empty-state {
+  padding: 32px 16px 16px;
+  text-align: center;
+  color: var(--ion-color-medium);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px 24px;
+}

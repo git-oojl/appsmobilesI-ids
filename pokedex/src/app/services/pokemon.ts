@@ -1,36 +1,77 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { map } from 'rxjs';
-import { PokemonDetail, PokemonListResponse } from '../models/pokemon.model';
+import { CapacitorHttp, HttpResponse } from '@capacitor/core';
+import { Injectable } from '@angular/core';
+import { from, map, Observable } from 'rxjs';
+import { IPokemon } from '../interfaces/ipokemon';
+import { IStats } from '../interfaces/istats';
+import { PokemonDetail } from '../models/pokemon.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PokemonService {
-  private http: HttpClient = inject(HttpClient);
-  private readonly URL = 'https://pokeapi.co/api/v2/pokemon';
+  private readonly URL_BASE = 'https://pokeapi.co/api/v2/pokemon';
+  private nextUrl: string | null = `${this.URL_BASE}?limit=20&offset=0`;
 
-  getPokemons(limit: number = 5, offset: number = 0) {
-    return this.http
-      .get<PokemonListResponse>(`${this.URL}?limit=${limit}&offset=${offset}`)
-      .pipe(
-        map(response => {
-          response.results = response.results.map(pokemon => {
-            const partes = pokemon.url.split('/').filter(Boolean);
-            const id = Number(partes[partes.length - 1]);
+  getPokemons(): Promise<IPokemon[]> | null {
+    if (this.nextUrl === null) {
+      return null;
+    }
 
-            return {
-              ...pokemon,
-              id
-            };
-          });
+    return (async () => {
+      const response: HttpResponse = await CapacitorHttp.get({
+        url: this.nextUrl as string,
+        params: {},
+      });
+      const results = (response.data.results as Array<{ url: string }>) ?? [];
 
-          return response;
+      this.nextUrl = response.data.next as string | null;
+
+      const promises = results.map((result) =>
+        CapacitorHttp.get({
+          url: result.url,
+          params: {},
         })
       );
+      const pokemonResponses: HttpResponse[] = await Promise.all(promises);
+
+      return pokemonResponses.map((pokemonResponse) =>
+        this.processPokemon(pokemonResponse.data)
+      );
+    })();
   }
 
-  getPokemon(id: number | string) {
-    return this.http.get<PokemonDetail>(`${this.URL}/${id}`);
+  getPokemon(id: number | string): Observable<PokemonDetail> {
+    return from(
+      CapacitorHttp.get({
+        url: `${this.URL_BASE}/${id}`,
+        params: {},
+      })
+    ).pipe(map((response: HttpResponse) => response.data as PokemonDetail));
+  }
+
+  private processPokemon(pokemonData: any): IPokemon {
+    const visibleAbilities: string[] = pokemonData.abilities
+      .filter((ability: any) => !ability.is_hidden)
+      .map((ability: any) => ability.ability.name);
+    const hiddenAbility = pokemonData.abilities.find(
+      (ability: any) => ability.is_hidden
+    )?.ability.name as string | undefined;
+    const stats: IStats[] = pokemonData.stats.map((stat: any) => ({
+      base_stat: stat.base_stat,
+      name: stat.stat.name,
+    }));
+
+    return {
+      id: pokemonData.id,
+      name: pokemonData.name,
+      type1: pokemonData.types[0].type.name,
+      type2: pokemonData.types[1]?.type.name,
+      sprite: pokemonData.sprites.front_default ?? '',
+      height: (pokemonData.height / 10).toString(),
+      weight: (pokemonData.weight / 10).toString(),
+      abilities: visibleAbilities,
+      hiddenAbility,
+      stats,
+    };
   }
 }

@@ -104,3 +104,15 @@ connect.lock
 libpeerconnection.log
 testem.log
 typings/
+
+# Local documents and assistant artifacts
+*.pdf
+codex-context/
+.codex/
+AGENTS.md
+NOTES.md
+PROMPTS.md
+PROMPT.md
+prompt.txt
+codex-notes.*
+codex-output.*

@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TitleCasePipe } from '@angular/common';
 import {
   IonBackButton,
   IonProgressBar,
@@ -18,11 +17,11 @@ import {
   IonList,
   IonSpinner,
   IonTitle,
-  IonToolbar
+  IonToolbar,
 } from '@ionic/angular/standalone';
 
-import { PokemonService } from '../services/pokemon';
-import { PokemonDetail } from '../models/pokemon.model';
+import { PokemonService } from '../../services/pokemon';
+import { PokemonDetail } from '../../models/pokemon.model';
 
 @Component({
   selector: 'app-detail-pokemon',
@@ -86,7 +85,7 @@ export class DetailPokemonPage implements OnInit {
       defense: 'Defense',
       'special-attack': 'Special Attack',
       'special-defense': 'Special Defense',
-      speed: 'Speed'
+      speed: 'Speed',
     };
 
     return names[name] || this.formatName(name);
@@ -102,17 +101,17 @@ export class DetailPokemonPage implements OnInit {
     }
 
     return this.pokemon.moves
-      .map(item => {
-        const detail = item.version_group_details.find(version =>
-          version.move_learn_method.name === 'level-up'
+      .map((item) => {
+        const detail = item.version_group_details.find(
+          (version) => version.move_learn_method.name === 'level-up'
         );
 
         return {
           name: item.move.name,
-          level: detail?.level_learned_at ?? 0
+          level: detail?.level_learned_at ?? 0,
         };
       })
-      .filter(move => move.level > 0)
+      .filter((move) => move.level > 0)
       .sort((a, b) => a.level - b.level)
       .slice(0, 8);
   }
@@ -128,15 +127,15 @@ export class DetailPokemonPage implements OnInit {
     this.loading = true;
 
     this.pokemonService.getPokemon(id).subscribe({
-      next: pokemon => {
+      next: (pokemon) => {
         this.pokemon = pokemon;
         this.loading = false;
       },
-      error: error => {
+      error: (error) => {
         console.log(error);
         this.loading = false;
         this.router.navigate(['/list-pokemons']);
-      }
+      },
     });
   }
 
