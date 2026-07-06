@@ -11,91 +11,102 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  @if (loading) {
-    <div class="center">
-      <ion-spinner/>
-    </div>
-  }
-
   @if (pokemon) {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title class="ion-text-center">
-          {{ formatName(pokemon.name) }} #{{ pokemon.id }}
-        </ion-card-title>
-      </ion-card-header>
+    <ion-fab slot="fixed" vertical="top" horizontal="end">
+      <ion-fab-button (click)="goBack()">
+        <ion-icon name="close-outline"/>
+      </ion-fab-button>
+    </ion-fab>
 
-      @if (getImage()) {
-        <ion-img [src]="getImage()" [alt]="pokemon.name"/>
-      }
+    <ion-grid class="detail-layout">
+      <ion-row>
+        <ion-col size="12">
+          <div class="hero-image">
+            <ion-img [src]="pokemon.sprite" [alt]="pokemon.name"/>
+          </div>
+        </ion-col>
+      </ion-row>
 
-      <ion-card-content>
-        <ion-list>
-          <ion-item>
-            <ion-label>
-              Altura: {{ getHeight() }}
-            </ion-label>
-          </ion-item>
+      <ion-row>
+        <ion-col size="12">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{ formatName(pokemon.name) }}</ion-card-title>
+            </ion-card-header>
 
-          <ion-item>
-            <ion-label>
-              Peso: {{ getWeight() }}
-            </ion-label>
-          </ion-item>
+            <ion-card-content>
+              <div class="types">
+                @for (type of getTypes(pokemon); track type) {
+                  <ion-chip>{{ formatName(type) }}</ion-chip>
+                }
+              </div>
 
-          <ion-item>
-            <ion-label>
-              Experiencia base: {{ pokemon.base_experience }}
-            </ion-label>
-          </ion-item>
+              <div class="info-grid">
+                <div class="info-item">
+                  <ion-text color="medium">Peso</ion-text>
+                  <strong>{{ pokemon.weight }} kg</strong>
+                </div>
 
-          <ion-item>
-            <ion-label>
-              Tipos:
-              @for (type of pokemon.types; track type.type.name) {
-                <ion-chip>{{ formatName(type.type.name) }}</ion-chip>
+                <div class="info-item">
+                  <ion-text color="medium">Altura</ion-text>
+                  <strong>{{ pokemon.height }} m</strong>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <ion-col size="12" sizeLg="6">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Habilidades</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <div class="ability-block">
+                <ion-text color="medium">Principales</ion-text>
+
+                <div class="ability-list">
+                  @for (ability of pokemon.abilities; track ability) {
+                    <ion-chip>{{ formatName(ability) }}</ion-chip>
+                  }
+                </div>
+              </div>
+
+              @if (pokemon.hiddenAbility) {
+                <div class="ability-block">
+                  <ion-text color="medium">Oculta</ion-text>
+                  <p>{{ formatName(pokemon.hiddenAbility) }}</p>
+                </div>
               }
-            </ion-label>
-          </ion-item>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-          <ion-item>
-            <ion-label>
-              <h2>Habilidades:</h2>
+        <ion-col size="12" sizeLg="6">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Estadísticas</ion-card-title>
+            </ion-card-header>
 
-              @for (ability of pokemon.abilities; track ability.ability.name) {
-                <p>{{ formatName(ability.ability.name) }}</p>
-              }
-            </ion-label>
-          </ion-item>
-
-          <ion-item>
-            <ion-label>
-              <h2>Stats:</h2>
-
-              @for (stat of pokemon.stats; track stat.stat.name) {
+            <ion-card-content>
+              @for (stat of pokemon.stats; track stat.name) {
                 <div class="stat-row">
                   <div class="stat-text">
-                    <span>{{ getStatName(stat.stat.name) }}</span>
+                    <span>{{ formatName(stat.name) }}</span>
                     <strong>{{ stat.base_stat }}</strong>
                   </div>
 
-                  <ion-progress-bar [value]="getStatPercent(stat.base_stat)"/>
+                  <ion-progress-bar
+                    [value]="stat.base_stat / 100"
+                    [color]="getStatColor(stat.base_stat)"
+                  />
                 </div>
               }
-            </ion-label>
-          </ion-item>
-
-          <ion-item>
-            <ion-label>
-              <h2>Movimientos por nivel:</h2>
-
-              @for (move of getLevelUpMoves(); track move.name) {
-                <p>Nivel {{ move.level }} - {{ formatName(move.name) }}</p>
-              }
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   }
 </ion-content>

@@ -1,27 +1,33 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, inject, Input, numberAttribute } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   IonBackButton,
-  IonProgressBar,
   IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
   IonChip,
+  IonCol,
   IonContent,
+  IonFab,
+  IonFabButton,
+  IonGrid,
   IonHeader,
+  IonIcon,
   IonImg,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonSpinner,
+  IonProgressBar,
+  IonRow,
+  IonText,
   IonTitle,
   IonToolbar,
+  LoadingController,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { closeOutline } from 'ionicons/icons';
 
+import { IPokemon } from '../../interfaces/ipokemon';
 import { PokemonService } from '../../services/pokemon';
-import { PokemonDetail } from '../../models/pokemon.model';
 
 @Component({
   selector: 'app-detail-pokemon',
@@ -35,25 +41,57 @@ import { PokemonDetail } from '../../models/pokemon.model';
     IonCardHeader,
     IonCardTitle,
     IonChip,
+    IonCol,
     IonContent,
+    IonFab,
+    IonFabButton,
+    IonGrid,
     IonHeader,
+    IonIcon,
     IonImg,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonSpinner,
+    IonProgressBar,
+    IonRow,
+    IonText,
     IonTitle,
     IonToolbar,
-    IonProgressBar,
   ],
 })
-export class DetailPokemonPage implements OnInit {
-  public pokemon?: PokemonDetail;
-  public loading: boolean = false;
+export class DetailPokemonPage {
+  @Input({ transform: numberAttribute }) id!: number;
 
-  private route: ActivatedRoute = inject(ActivatedRoute);
+  public pokemon?: IPokemon;
+
   private router: Router = inject(Router);
   private pokemonService: PokemonService = inject(PokemonService);
+  private loadingController: LoadingController = inject(LoadingController);
+
+  constructor() {
+    addIcons({ closeOutline });
+  }
+
+  async ionViewWillEnter() {
+    if (!Number.isInteger(this.id) || this.id <= 0) {
+      this.goBack();
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Cargando...',
+    });
+
+    await loading.present();
+
+    this.pokemonService
+      .getPokemon(this.id)
+      .then((pokemon: IPokemon) => {
+        this.pokemon = pokemon;
+      })
+      .catch((error) => {
+        console.log(error);
+        this.goBack();
+      })
+      .finally(() => loading.dismiss());
+  }
 
   formatName(name: string) {
     return name
@@ -62,88 +100,15 @@ export class DetailPokemonPage implements OnInit {
       .replace(/\b\w/g, (letter: string) => letter.toUpperCase());
   }
 
-  getHeight() {
-    if (!this.pokemon) {
-      return '';
-    }
-
-    return `${this.pokemon.height / 10} m`;
+  getTypes(pokemon: IPokemon): string[] {
+    return pokemon.type2 ? [pokemon.type1, pokemon.type2] : [pokemon.type1];
   }
 
-  getWeight() {
-    if (!this.pokemon) {
-      return '';
-    }
-
-    return `${this.pokemon.weight / 10} kg`;
+  getStatColor(value: number): 'success' | 'warning' | 'danger' {
+    return value >= 60 ? 'success' : value <= 30 ? 'danger' : 'warning';
   }
 
-  getStatName(name: string) {
-    const names: { [key: string]: string } = {
-      hp: 'HP',
-      attack: 'Attack',
-      defense: 'Defense',
-      'special-attack': 'Special Attack',
-      'special-defense': 'Special Defense',
-      speed: 'Speed',
-    };
-
-    return names[name] || this.formatName(name);
-  }
-
-  getStatPercent(value: number) {
-    return value / 255;
-  }
-
-  getLevelUpMoves() {
-    if (!this.pokemon) {
-      return [];
-    }
-
-    return this.pokemon.moves
-      .map((item) => {
-        const detail = item.version_group_details.find(
-          (version) => version.move_learn_method.name === 'level-up'
-        );
-
-        return {
-          name: item.move.name,
-          level: detail?.level_learned_at ?? 0,
-        };
-      })
-      .filter((move) => move.level > 0)
-      .sort((a, b) => a.level - b.level)
-      .slice(0, 8);
-  }
-
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-
-    if (!id) {
-      this.router.navigate(['/list-pokemons']);
-      return;
-    }
-
-    this.loading = true;
-
-    this.pokemonService.getPokemon(id).subscribe({
-      next: (pokemon) => {
-        this.pokemon = pokemon;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.log(error);
-        this.loading = false;
-        this.router.navigate(['/list-pokemons']);
-      },
-    });
-  }
-
-  getImage() {
-    return this.pokemon?.sprites.front_default || '';
-  }
-
-  getLocalImage(id: number) {
-    return `assets/pokemon/${id}.png`;
+  goBack() {
+    this.router.navigateByUrl('/list-pokemons');
   }
 }

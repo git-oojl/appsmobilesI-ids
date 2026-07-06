@@ -1,9 +1,7 @@
 import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 import { Injectable } from '@angular/core';
-import { from, map, Observable } from 'rxjs';
 import { IPokemon } from '../interfaces/ipokemon';
 import { IStats } from '../interfaces/istats';
-import { PokemonDetail } from '../models/pokemon.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,13 +38,13 @@ export class PokemonService {
     })();
   }
 
-  getPokemon(id: number | string): Observable<PokemonDetail> {
-    return from(
-      CapacitorHttp.get({
-        url: `${this.URL_BASE}/${id}`,
-        params: {},
-      })
-    ).pipe(map((response: HttpResponse) => response.data as PokemonDetail));
+  getPokemon(id: number): Promise<IPokemon> {
+    const ruta = `${this.URL_BASE}/${id}`;
+
+    return CapacitorHttp.get({
+      url: ruta,
+      params: {},
+    }).then((resp: HttpResponse) => this.processPokemon(resp.data));
   }
 
   private processPokemon(pokemonData: any): IPokemon {

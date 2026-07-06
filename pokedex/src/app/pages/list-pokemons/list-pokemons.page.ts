@@ -11,10 +11,13 @@ import {
   IonGrid,
   IonHeader,
   IonImg,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonRow,
   IonSearchbar,
   IonTitle,
   IonToolbar,
+  InfiniteScrollCustomEvent,
   LoadingController,
 } from '@ionic/angular/standalone';
 
@@ -36,6 +39,8 @@ import { PokemonService } from '../../services/pokemon';
     IonGrid,
     IonHeader,
     IonImg,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
     IonRow,
     IonSearchbar,
     IonTitle,
@@ -55,32 +60,45 @@ export class ListPokemonsPage implements OnInit {
     this.getMorePokemons();
   }
 
-  async getMorePokemons() {
-    const pendingPokemons = this.pokemonService.getPokemons();
+  async getMorePokemons(event?: InfiniteScrollCustomEvent) {
+    const promisePokemons = this.pokemonService.getPokemons();
 
-    if (pendingPokemons === null) {
+    if (!promisePokemons) {
+      this.loading = false;
+
+      if (event) {
+        event.target.disabled = true;
+        event.target.complete();
+      }
+
       return;
     }
 
-    const loading = await this.loadingController.create({
-      message: 'Cargando...',
-    });
+    let loading: HTMLIonLoadingElement | undefined;
 
-    await loading.present();
+    if (!event) {
+      loading = await this.loadingController.create({
+        message: 'Cargando...',
+      });
+
+      await loading.present();
+    }
+
     this.loading = true;
 
     try {
-      const pokemons = await pendingPokemons;
+      const pokemons = await promisePokemons;
       this.pokemons = this.pokemons.concat(pokemons);
     } catch (error) {
       console.log(error);
     } finally {
       this.loading = false;
-      await loading.dismiss();
+      await loading?.dismiss();
+      event?.target.complete();
     }
   }
 
-  goToDetail(pokemon: IPokemon) {
+  goToPage(pokemon: IPokemon) {
     this.router.navigate(['/detail-pokemon', pokemon.id]);
   }
 

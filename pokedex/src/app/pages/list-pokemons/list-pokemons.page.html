@@ -28,7 +28,7 @@
     <ion-row>
       @for (pokemon of pokemons; track trackPokemon($index, pokemon)) {
         <ion-col size="6" sizeMd="4" sizeLg="3">
-          <ion-card (click)="goToDetail(pokemon)" class="pokemon-card">
+          <ion-card (click)="goToPage(pokemon)" class="pokemon-card">
             <ion-card-content>
               <div class="card-media">
                 @if (hasSprite(pokemon)) {
@@ -63,9 +63,10 @@
     </div>
   }
 
-  <div class="actions">
-    <ion-button (click)="getMorePokemons()" [disabled]="loading">
-      Cargar mas
-    </ion-button>
-  </div>
+  <ion-infinite-scroll threshold="50px" (ionInfinite)="getMorePokemons($event)">
+    <ion-infinite-scroll-content
+      loadingText="Cargando..."
+      loadingSpinner="bubbles"
+    />
+  </ion-infinite-scroll>
 </ion-content>
